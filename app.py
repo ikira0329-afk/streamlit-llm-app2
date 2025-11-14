@@ -1,22 +1,27 @@
 from dotenv import load_dotenv
 load_dotenv()
+
+
 import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 st.title("専門家になんでも聞いて！")
-st.write("この質問コーナーは、健康維持について、理学療法士と管理栄養士の専門家に質問できるサービスです。")
+st.write(
+    "この質問コーナーは、健康維持について、理学療法士と管理栄養士の専門家に質問できるサービスです。")
 
 selected_item = st.radio(
     "2人の専門家の中から、質問したい専門家を選んでください。",
-    ["理学療法士","管理栄養士"]
-    )
+    ["理学療法士","管理栄養士"],
+)
 st.divider()
 
 st.write(f"選択された専門家:{selected_item}")
 
-input_message = st.text_input(label="健康に関するお悩みやその他、質問を下記の欄に入力してください。")
+input_message = st.text_input(
+    label="健康に関するお悩みやその他、質問を下記の欄に入力してください。"
+)
 
 
 system_message = {
@@ -53,6 +58,7 @@ point_prompt = ChatPromptTemplate.from_template(
     """あなたは質問に対して、専門的な知識がある専門家です。
     以下の質問が「健康」「身体」「栄養」「運動」「リハビリ」「メンタル」等に関する内容なら「はい」、
     全く関係ない内容であれば、「いいえ」とだけ答えてください。
+
     質問:{question}
     """
     )
@@ -66,9 +72,11 @@ if st.button("実行"):
 
     else:
         point_result = point_chain.invoke({"question":input_message})
-        if "いいえ" in point_result["text"]:
-            st.write("この質問は健康や栄養に関する内容ではないです。質問内容を変更してください。")
+        if "いいえ" in point_result:
+            st.write(
+                "この質問は健康や栄養に関する内容ではないです。質問内容を変更してください。"
+            )
         else:
             result = answer_chain.invoke({"input":input_message})
             st.write("### 回答:")
-            st.write(result["text"])
+            st.write(result)
